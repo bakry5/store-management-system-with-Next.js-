@@ -1,67 +1,114 @@
 import Image from "next/image";
 import axios from "axios";
 import { useRouter } from "next/router";
-import { MdEdit } from "react-icons/md";
-
+import { motion } from "framer-motion";
+import { useDispatch } from "react-redux";
+import { addToCart } from "@/redux/cartSlice";
+import { MdEdit, MdDelete, MdRemoveRedEye, MdShoppingCart } from "react-icons/md";
 
 const ProductCard = ({ product, onDelete }) => {
   const router = useRouter();
+  const dispatch = useDispatch();
 
-  
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
-        await axios.delete(`http://localhost:4000/products/${id}`);
-        onDelete(id); 
-        alert("Product deleted successfully!");
+        await axios.delete(`/api/products/${id}`);
+        onDelete(id);
       } catch (error) {
         console.error("Delete Error:", error);
+        alert("Failed to delete product");
       }
     }
   };
 
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dispatch(addToCart(product));
+  };
+
   return (
-    <div className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100 group flex flex-col h-full relative">
-      
-      
-      <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
-        <button 
-          onClick={() => router.push(`/products/edit/${product.id}`)}
-          className="bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm text-blue-600 hover:bg-blue-600 hover:text-white transition"
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -5 }}
+      transition={{ duration: 0.3 }}
+      className="group bg-gradient-to-br from-slate-800/50 to-purple-900/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/10 hover:border-purple-500/50 transition-all duration-300 flex flex-col h-full relative"
+    >
+      <div className="absolute top-3 right-3 z-20 flex gap-2">
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => router.push(`/products/edit/${product._id}`)}
+          className="p-2 bg-white/10 backdrop-blur-sm rounded-lg text-blue-400 hover:bg-blue-500 hover:text-white transition-all"
           title="Edit Product"
         >
-<MdEdit />
-        </button>
-        
-        <button 
-          onClick={() => handleDelete(product.id)}
-          className="bg-white/80 backdrop-blur-sm p-2 rounded-full shadow-sm text-red-600 hover:bg-red-600 hover:text-white transition"
+          <MdEdit size={16} />
+        </motion.button>
+
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => handleDelete(product._id)}
+          className="p-2 bg-white/10 backdrop-blur-sm rounded-lg text-red-400 hover:bg-red-500 hover:text-white transition-all"
           title="Delete Product"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
+          <MdDelete size={16} />
+        </motion.button>
       </div>
 
-      <div className="relative h-48 w-full bg-gray-50">
-        <Image src={product.thumbnail || "/placeholder.png"} alt={product.title} fill className="object-contain p-4" />
+      <div className="relative h-52 w-full overflow-hidden bg-gradient-to-br from-purple-900/30 to-pink-900/30">
+        <Image
+          src={product.thumbnail || "/placeholder.png"}
+          alt={product.title}
+          fill
+          className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+        />
       </div>
 
       <div className="p-5 flex flex-col flex-grow">
-        <h3 className="font-bold text-gray-800 line-clamp-1 mb-2">{product.title}</h3>
-        <p className="text-2xl font-black text-blue-600 mt-auto">${product.price}</p>
-        
-        <div className="grid grid-cols-1 mt-4 gap-2">
-          <button 
-            onClick={() => router.push(`/products/${product.id}`)}
-            className="w-full py-2 bg-gray-900 text-white rounded-lg font-bold text-sm hover:bg-black transition"
+        <span className="text-xs font-semibold uppercase tracking-wider text-purple-400 mb-2">
+          {product.category || 'Premium'}
+        </span>
+
+        <h3 className="text-lg font-bold text-white hover:text-purple-400 transition-colors line-clamp-1 mb-2">
+          {product.title}
+        </h3>
+
+        <p className="text-white/50 text-sm line-clamp-2 mb-4 flex-grow leading-relaxed">
+          {product.description || 'No description available'}
+        </p>
+
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-2xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            ${product.price}
+          </span>
+        </div>
+
+        <div className="flex gap-2">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => router.push(`/products/${product._id}`)}
+            className="flex-1 bg-white/10 border border-white/20 text-white py-3 rounded-xl font-semibold text-sm hover:bg-white/20 transition-all flex items-center justify-center gap-2"
           >
-            View Details
-          </button>
+            <MdRemoveRedEye size={18} />
+            View
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleAddToCart}
+            className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-purple-500/25 transition-all flex items-center justify-center gap-2"
+          >
+            <MdShoppingCart size={18} />
+            Add to Cart
+          </motion.button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

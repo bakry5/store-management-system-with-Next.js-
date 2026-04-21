@@ -1,149 +1,199 @@
 import { useRouter } from 'next/router';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '@/redux/cartSlice';
+import axios from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { FiArrowLeft, FiShoppingBag, FiHeart, FiTruck, FiRefreshCw, FiStar } from 'react-icons/fi';
 
-export default function ProductDetails() {
+export default function ProductDetails({ product: initialProduct }) {
   const router = useRouter();
+  const dispatch = useDispatch();
+  const [product, setProduct] = useState(initialProduct);
+  const [loading, setLoading] = useState(false);
+
   const { id } = router.query;
-  
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  const fetchProduct = async () => {
-    try {
-      const res = await fetch(`http://localhost:4000/products/${id}`);
-      const data = await res.json();
-      setProduct(data);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error:", error);
-      setLoading(false);
-    }
-  };
   useEffect(() => {
-    if (!id) return;
-    fetchProduct();
-  }, [id]);
+    if (router.isFallback) return;
+    
+    if (id && !initialProduct) {
+      setLoading(true);
+      axios.get(`/api/products/${id}`)
+        .then(res => {
+          setProduct(res.data);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error("Error fetching product", err);
+          setLoading(false);
+        });
+    }
+  }, [id, initialProduct, router.isFallback]);
 
-
-  if (loading) {
+  if (router.isFallback || loading) {
     return (
-      <div className="container mx-auto px-6 py-20 animate-pulse">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          <div className="bg-gray-200 h-[400px] rounded-3xl"></div>
-          <div className="space-y-6">
-            <div className="h-10 bg-gray-200 rounded w-3/4"></div>
-            <div className="h-6 bg-gray-200 rounded w-1/2"></div>
-            <div className="h-24 bg-gray-200 rounded w-full"></div>
-            <div className="h-12 bg-gray-200 rounded w-40"></div>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <motion.div 
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full"
+        />
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-white mb-4">Product not found!</h2>
+          <Link href="/products">
+            <button className="text-purple-400 hover:text-purple-300">Back to Shop</button>
+          </Link>
         </div>
       </div>
     );
   }
 
-  if (!product) return <div className="text-center py-20">Product Not Found</div>;
-
   return (
-    <div className="bg-white min-h-screen">
-
-      <div className="bg-gray-50 py-4 border-b border-gray-100">
-        <div className="container mx-auto px-6">
-          <button 
-            onClick={() => router.back()} 
-            className="text-sm font-bold text-gray-500 hover:text-blue-600 transition flex items-center gap-2"
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="container mx-auto px-6 py-12">
+        <Link href="/products">
+          <motion.button 
+            whileHover={{ x: -5 }}
+            className="flex items-center gap-2 text-white/60 hover:text-white transition-colors mb-8 font-semibold"
           >
-            ← Back to Gallery
-          </button>
-        </div>
-      </div>
+            <FiArrowLeft size={20} />
+            Back to Shop
+          </motion.button>
+        </Link>
 
-      <main className="container mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-          
-      
-          <div className="space-y-4">
-            <div className="relative h-[500px] w-full bg-gray-50 rounded-[2.5rem] overflow-hidden border border-gray-100 group">
+        <div className="flex flex-col lg:flex-row gap-12 items-start">
+          <motion.div 
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex-1 w-full"
+          >
+            <div className="relative h-[400px] md:h-[500px] w-full bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-2xl overflow-hidden border border-white/10">
               <Image 
                 src={product.thumbnail} 
-                alt={product.title} 
-                fill 
-                className="object-contain p-10 group-hover:scale-105 transition-transform duration-700"
-                priority
+                alt={product.title}
+                fill
+                className="object-cover hover:scale-105 transition-transform duration-700"
               />
             </div>
-         
-            <div className="grid grid-cols-4 gap-4">
-              {product.images?.slice(0, 4).map((img, index) => (
-                <div key={index} className="relative h-24 bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden cursor-pointer hover:border-blue-500 transition">
-                  <Image src={img} alt="gallery" fill className="object-cover p-2" />
-                </div>
-              ))}
-            </div>
-          </div>
+          </motion.div>
 
-          <div className="flex flex-col">
-            <div className="mb-6">
-              <span className="text-blue-600 font-bold text-sm tracking-widest uppercase mb-2 block">
-                {product.brand || 'Premium Collection'}
+          <motion.div 
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex-1 space-y-6"
+          >
+            <div className="space-y-3">
+              <span className="inline-block bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 px-4 py-1.5 rounded-full font-semibold text-xs uppercase tracking-wider border border-purple-500/30">
+                {product.category || 'Premium Product'}
               </span>
-              <h1 className="text-4xl md:text-5xl font-black text-gray-900 leading-tight">
+              <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
                 {product.title}
               </h1>
-              <div className="flex items-center gap-4 mt-4">
-                <div className="flex text-yellow-400">
-                  {"★".repeat(Math.round(product.rating))}
-                  <span className="text-gray-300">{"★".repeat(5 - Math.round(product.rating))}</span>
-                </div>
-                <span className="text-sm text-gray-400 font-medium">({product.rating} Customer Reviews)</span>
+              <div className="flex items-center gap-3">
+                <span className="text-3xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  ${product.price}
+                </span>
+                <span className="text-green-400 font-semibold bg-green-500/10 px-3 py-1 rounded-lg text-sm border border-green-500/20">
+                  In Stock
+                </span>
+              </div>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <FiStar key={star} size={16} className="fill-yellow-400 text-yellow-400" />
+                ))}
+                <span className="text-white/40 text-sm ml-2">(128 reviews)</span>
               </div>
             </div>
 
-            <p className="text-gray-500 text-lg leading-relaxed mb-8">
+            <p className="text-lg text-white/60 leading-relaxed">
               {product.description}
             </p>
 
-            <div className="bg-gray-50 p-8 rounded-[2rem] border border-gray-100 mb-8">
-              <div className="flex items-end gap-3 mb-2">
-                <span className="text-4xl font-black text-blue-600">${product.price}</span>
-                <span className="text-gray-400 line-through text-lg mb-1">
-                  ${Math.round(product.price * 1.2)}
-                </span>
-                <span className="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full mb-2">
-                  SAVE {product.discountPercentage}%
-                </span>
+            <div className="flex gap-3 gap-y-4 flex-wrap pt-4 border-t border-white/10">
+              <div className="flex items-center gap-2 text-white/40 text-sm">
+                <FiTruck size={18} />
+                <span>Free Shipping</span>
               </div>
-              <p className="text-sm text-gray-400 italic">Tax included. Free shipping on orders over $100.</p>
-            </div>
-
-          
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button className="flex-grow bg-gray-900 text-white py-5 rounded-2xl font-bold hover:bg-black transition-all active:scale-95 shadow-xl shadow-gray-200">
-                Add to Cart
-              </button>
-              <button className="bg-white border-2 border-gray-200 p-5 rounded-2xl hover:bg-gray-50 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              </button>
-            </div>
-
-        
-            <div className="mt-10 grid grid-cols-2 gap-6 border-t border-gray-100 pt-8">
-              <div>
-                <h4 className="font-bold text-gray-900">Availability</h4>
-                <p className="text-sm text-green-600 font-medium">{product.stock > 0 ? `In Stock (${product.stock})` : 'Out of Stock'}</p>
-              </div>
-              <div>
-                <h4 className="font-bold text-gray-900">Category</h4>
-                <p className="text-sm text-gray-500 capitalize">{product.category}</p>
+              <div className="flex items-center gap-2 text-white/40 text-sm">
+                <FiRefreshCw size={18} />
+                <span>30-Day Returns</span>
               </div>
             </div>
-          </div>
 
+            <div className="flex gap-4 pt-4">
+              <motion.button 
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => dispatch(addToCart(product))}
+                className="flex-grow bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-xl hover:shadow-purple-500/25 transition-all flex items-center justify-center gap-3"
+              >
+                <FiShoppingBag size={20} />
+                Add to Cart — ${product.price}
+              </motion.button>
+              
+              <motion.button 
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="p-4 bg-white/5 border border-white/10 text-white/60 rounded-xl hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30 transition-all"
+              >
+                <FiHeart size={22} />
+              </motion.button>
+            </div>
+          </motion.div>
         </div>
-      </main>
+      </div>
     </div>
   );
+}
+
+export async function getStaticPaths() {
+  try {
+    const res = await fetch('http://localhost:3000/api/products');
+    const products = await res.json();
+    
+    const paths = products.map((product) => ({
+      params: { id: product._id.toString() },
+    }));
+    
+    return {
+      paths,
+      fallback: 'blocking',
+    };
+  } catch (error) {
+    return {
+      paths: [],
+      fallback: 'blocking',
+    };
+  }
+}
+
+export async function getStaticProps(context) {
+  try {
+    const { params } = context;
+    const res = await fetch(`http://localhost:3000/api/products/${params.id}`);
+    const data = await res.json();
+
+    if (!data || Object.keys(data).length === 0) {
+      return { notFound: true };
+    }
+
+    return {
+      props: {
+        product: JSON.parse(JSON.stringify(data)),
+      },
+      revalidate: 10, 
+    };
+  } catch (error) {
+    return { notFound: true };
+  }
 }

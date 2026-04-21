@@ -1,21 +1,25 @@
-import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
 import "@/styles/globals.css";
+import { Provider } from "react-redux";
+import { Toaster } from 'react-hot-toast';
+import { store } from "@/redux/store";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import NewsToaster from "@/components/NewsToaster";
 
-export default function App({ Component, pageProps }) {
+export default function App({ Component, pageProps}) {
 
-  if (Component.getLayout) {
-    return Component.getLayout(<Component {...pageProps} />);
+  if (Component.getLayout){
+    return Component.getLayout(<Component {...pageProps} />)
   }
-
- 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <Provider store={store}>
       <Navbar />
-      <main className="flex-grow">
-        <Component {...pageProps} />
-      </main>
-      <Footer />
-    </div>
+   <NewsToaster />
+      <Component {...pageProps} />
+      <Footer/>
+      <Toaster position="bottom-right" reverseOrder={false} />
+    </Provider>
   );
-} 
+}
+
+
