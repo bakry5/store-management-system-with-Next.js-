@@ -11,7 +11,7 @@ export default function AddProduct() {
     price: '', 
     description: '', 
     category: '',
-    thumbnail: 'https://via.placeholder.com/150'
+    thumbnail: ""
   });
   const [loading, setLoading] = useState(false);
 
@@ -56,6 +56,8 @@ export default function AddProduct() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
+          
+
             <div>
               <label className="flex items-center gap-2 text-sm font-semibold text-purple-400 mb-2">
                 <FiTag size={16} />

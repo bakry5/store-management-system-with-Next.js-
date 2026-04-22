@@ -2,8 +2,25 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    
-    domains: ['via.placeholder.com', 'cdn.dummyjson.com'], 
+    remotePatterns: [
+   { protocol: 'https', hostname: 'th.bing.com' },
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com', 
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.dummyjson.com',    
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com', 
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com', 
+      },
+    ],
   },
 };
 

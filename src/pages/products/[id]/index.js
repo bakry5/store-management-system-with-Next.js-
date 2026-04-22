@@ -79,7 +79,7 @@ export default function ProductDetails({ product: initialProduct }) {
           >
             <div className="relative h-[400px] md:h-[500px] w-full bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-2xl overflow-hidden border border-white/10">
               <Image 
-                src={product.thumbnail} 
+                src={product.thumbnail || "https://cdn.dummyjson.com/public/qr-code.png"} 
                 alt={product.title}
                 fill
                 className="object-cover hover:scale-105 transition-transform duration-700"

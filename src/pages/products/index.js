@@ -3,8 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiPlus, FiPackage, FiTrash2, FiEdit } from 'react-icons/fi';
 import ProductCard from "@/components/ProductCard";
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import ProductCardWithOUtAuth from '@/components/ProductCardWithOUtAuth';
 
 export default function Products({ initialProducts }) {
+  const {data:session}=useSession()
   const [products, setProducts] = useState(initialProducts);
 
   const handleDeletedItem = (id) => {
@@ -27,7 +30,7 @@ export default function Products({ initialProducts }) {
             <p className="text-white/50 mt-2">Manage your product catalog</p>
           </div>
           
-          <Link href="/products/add">
+          {session? <Link href="/products/add">
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -36,7 +39,7 @@ export default function Products({ initialProducts }) {
               <FiPlus size={20} />
               Add New Product
             </motion.button>
-          </Link>
+          </Link>:null}
         </motion.div>
 
         <AnimatePresence>
@@ -46,7 +49,7 @@ export default function Products({ initialProducts }) {
               animate={{ opacity: 1 }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
             >
-              {products.map((item, index) => (
+             {session? products.map((item, index) => (
                 <motion.div
                   key={item._id}
                   initial={{ opacity: 0, y: 20 }}
@@ -57,6 +60,19 @@ export default function Products({ initialProducts }) {
                   <ProductCard 
                     product={item} 
                     onDelete={handleDeletedItem} 
+                  />
+                </motion.div>
+              )): products.slice(0,3).map((item, index) => (
+                <motion.div
+                  key={item._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <ProductCardWithOUtAuth 
+                    product={item} 
+                    
                   />
                 </motion.div>
               ))}
