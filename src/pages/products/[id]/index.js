@@ -7,8 +7,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { FiArrowLeft, FiShoppingBag, FiHeart, FiTruck, FiRefreshCw, FiStar } from 'react-icons/fi';
-import dbConnect from "@/lib/dbConnect";
-import Product from "@/models/Product";
+import dbConnect from "../../../lib/mongodb";
+import Product from "../../../models/Product";
 
 export default function ProductDetails({ product: initialProduct }) {
   const router = useRouter();

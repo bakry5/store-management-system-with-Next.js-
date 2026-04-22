@@ -8,6 +8,8 @@ import ProductCardWithOUtAuth from '@/components/ProductCardWithOUtAuth';
 import Product from '@/models/Product';
 import dbConnect from '@/lib/mongodb';
 
+
+
 export default function Products({ initialProducts }) {
   const {data:session}=useSession()
   const [products, setProducts] = useState(initialProducts);
