@@ -99,7 +99,7 @@ export async function getStaticProps() {
       props: { 
         initialProducts: JSON.parse(JSON.stringify(data)) || [] 
       },
-      revalidate: 1
+      revalidate: 0
     };
   } catch (error) {
     console.error("Fetch error:", error);
