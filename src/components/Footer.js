@@ -110,11 +110,11 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-center gap-3 text-white/40 text-sm">
                 <FiMail className="text-purple-400" size={16} />
-                <span>info@bakry.com</span>
+                <span>mohamed.medhat23000@gmail.com</span>
               </li>
               <li className="flex items-center gap-3 text-white/40 text-sm">
                 <FiPhone className="text-purple-400" size={16} />
-                <span>+20 123 456 789</span>
+                <span>+201507882744</span>
               </li>
               <li className="flex items-center gap-3 text-white/40 text-sm">
                 <FiMapPin className="text-purple-400" size={16} />

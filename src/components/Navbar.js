@@ -4,26 +4,25 @@ import { useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FiShoppingBag, 
-  FiUser, 
+  FiUser,   
   FiHeart,
   FiMenu, 
   FiX,
-  FiSun,
-  FiMoon
 } from 'react-icons/fi';
 import { useState } from 'react';
+import { signIn, signOut, useSession } from 'next-auth/react';
 
 export default function Navbar() {
+  const { data: session } = useSession();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isDark, setIsDark] = useState(false);
   const cartItems = useSelector((state) => state.cart.items);
   const cartCount = cartItems.length;
 
   const navLinks = [
     { name: 'Home', path: '/', icon: FiHeart },
     { name: 'Products', path: '/products', icon: FiShoppingBag },
-    { name: 'contact', path: '/contact', icon: FiUser },
+    { name: 'Contact', path: '/contact', icon: FiUser },
   ];
 
   const navVariants = {
@@ -57,11 +56,15 @@ export default function Navbar() {
             
             <Link href="/" className="group flex items-center gap-2">
               <motion.div 
-                whileH={{ rotate: 360 }}
+                whileHover={{ rotate: 360 }}
                 transition={{ duration: 0.5 }}
-                className="w-11 h-11 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/25"
+                className="w-11 h-11 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/25 overflow-hidden"
               >
-                <span className="text-white font-black text-2xl">B</span>
+                {session?.user?.image ? (
+                  <img src={session.user.image} alt="User" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-white font-black text-2xl">B</span>
+                )}
               </motion.div>
               <span className="text-2xl font-black tracking-tighter bg-gradient-to-r from-white to-purple-300 bg-clip-text text-transparent">
                 Bakry<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">.</span>
@@ -87,15 +90,6 @@ export default function Navbar() {
             </div>
 
             <div className="flex items-center gap-3">
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setIsDark(!isDark)}
-                className="p-2 rounded-full bg-white/5 border border-white/10 text-white/70 hover:text-white"
-              >
-                {isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
-              </motion.button>
-
               <Link href="/cart">
                 <motion.div 
                   whileHover={{ scale: 1.1 }}
@@ -119,24 +113,28 @@ export default function Navbar() {
               </Link>
 
               <div className="hidden sm:flex items-center gap-2">
-                <Link href="/login">
+                {!session ? (
                   <motion.button 
+                    onClick={() => signIn()}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className="px-5 py-2.5 text-sm font-semibold text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-all"
                   >
                     Login
                   </motion.button>
-                </Link>
-                <Link href="/register">
-                  <motion.button 
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all"
-                  >
-                    Sign Up
-                  </motion.button>
-                </Link>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <span className="text-white/60 text-xs hidden lg:block">Hi, {session.user.name?.split(' ')[0]}</span>
+                    <motion.button 
+                      onClick={() => signOut()}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-5 py-2.5 text-sm font-semibold text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-all border border-white/5"
+                    >
+                      LogOut
+                    </motion.button>
+                  </div>
+                )}
               </div>
 
               <motion.button 
@@ -197,24 +195,23 @@ export default function Navbar() {
               </div>
 
               <div className="p-6 border-t border-white/10 space-y-3">
-                <Link href="/login">
+                {!session ? (
                   <motion.button
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full py-3 text-center font-semibold text-white/80 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10"
+                    onClick={() => { signIn(); setIsMobileMenuOpen(false); }}
+                    className="w-full py-4 text-center font-bold text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl"
                   >
                     Login
                   </motion.button>
-                </Link>
-                <Link href="/register">
+                ) : (
                   <motion.button
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full py-3 text-center font-semibold text-white bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl shadow-lg"
+                    onClick={() => { signOut(); setIsMobileMenuOpen(false); }}
+                    className="w-full py-4 text-center font-bold text-white/80 bg-white/5 border border-white/10 rounded-xl"
                   >
-                    Sign Up
+                    LogOut
                   </motion.button>
-                </Link>
+                )}
               </div>
             </div>
           </motion.div>

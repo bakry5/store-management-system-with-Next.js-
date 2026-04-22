@@ -149,7 +149,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <h4 className="font-bold text-white text-lg">Phone</h4>
-                  <p className="text-white/40">+20 123 456 7890</p>
+                  <p className="text-white/40">+201507882744</p>
                 </div>
               </motion.div>
 
@@ -162,7 +162,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <h4 className="font-bold text-white text-lg">Email</h4>
-                  <p className="text-white/40">hello@bakry.com</p>
+                  <p className="text-white/40">mohamed.medhat23000@gmail.com</p>
                 </div>
               </motion.div>
             </motion.div>
