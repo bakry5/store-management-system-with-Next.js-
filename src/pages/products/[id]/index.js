@@ -7,6 +7,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { FiArrowLeft, FiShoppingBag, FiHeart, FiTruck, FiRefreshCw, FiStar } from 'react-icons/fi';
+import dbConnect from "@/lib/dbConnect";
+import Product from "@/models/Product";
 
 export default function ProductDetails({ product: initialProduct }) {
   const router = useRouter();
@@ -156,10 +158,11 @@ export default function ProductDetails({ product: initialProduct }) {
   );
 }
 
+
 export async function getStaticPaths() {
   try {
-    const res = await fetch('http://localhost:3000/api/products');
-    const products = await res.json();
+    await dbConnect(); 
+    const products = await Product.find({}, { _id: 1 }).lean(); 
     
     const paths = products.map((product) => ({
       params: { id: product._id.toString() },
@@ -167,23 +170,21 @@ export async function getStaticPaths() {
     
     return {
       paths,
-      fallback: 'blocking',
+      fallback: 'blocking', 
     };
   } catch (error) {
-    return {
-      paths: [],
-      fallback: 'blocking',
-    };
+    console.error("Error in getStaticPaths:", error);
+    return { paths: [], fallback: 'blocking' };
   }
 }
-
 export async function getStaticProps(context) {
   try {
     const { params } = context;
-    const res = await fetch(`http://localhost:3000/api/products/${params.id}`);
-    const data = await res.json();
+    await dbConnect(); 
+    
+    const data = await Product.findById(params.id).lean();
 
-    if (!data || Object.keys(data).length === 0) {
+    if (!data) {
       return { notFound: true };
     }
 
@@ -194,6 +195,7 @@ export async function getStaticProps(context) {
       revalidate: 10, 
     };
   } catch (error) {
+    console.error("Error in getStaticProps:", error);
     return { notFound: true };
   }
 }

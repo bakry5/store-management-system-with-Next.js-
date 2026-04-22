@@ -5,6 +5,8 @@ import ProductCard from "@/components/ProductCard";
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import ProductCardWithOUtAuth from '@/components/ProductCardWithOUtAuth';
+import Product from '@/models/Product';
+import dbConnect from '@/lib/mongodb';
 
 export default function Products({ initialProducts }) {
   const {data:session}=useSession()
@@ -105,20 +107,24 @@ export default function Products({ initialProducts }) {
     </div>
   );
 }
-
 export async function getStaticProps() {
   try {
-    const res = await fetch("http://localhost:3000/api/products");
-    const data = await res.json();
+   
+    await dbConnect();
+    
+   
+    const products = await Product.find({}).lean();
 
     return {
       props: { 
-        initialProducts: JSON.parse(JSON.stringify(data)) || [] 
+        
+        initialProducts: JSON.parse(JSON.stringify(products)) || [] 
       },
-      revalidate: 0
+     
+      revalidate: 1 
     };
   } catch (error) {
-    console.error("Fetch error:", error);
+    console.error("Database error:", error);
     return { props: { initialProducts: [] } };
   }
 }
