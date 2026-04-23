@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiPlus, FiPackage, FiTrash2, FiEdit } from 'react-icons/fi';
 import ProductCard from "@/components/ProductCard";
+import SearchBar from "@/components/SearchBar";
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import ProductCardWithOUtAuth from '@/components/ProductCardWithOUtAuth';
@@ -13,10 +14,12 @@ import dbConnect from '@/lib/mongodb';
 export default function Products({ initialProducts }) {
   const {data:session}=useSession()
   const [products, setProducts] = useState(initialProducts);
+  const [filteredProducts, setFilteredProducts] = useState(initialProducts);
 
   const handleDeletedItem = (id) => {
     const filtered = products.filter(p => p._id !== id);
     setProducts(filtered);
+    setFilteredProducts(filtered);
   };
 
   return (
@@ -46,27 +49,36 @@ export default function Products({ initialProducts }) {
           </Link>:null}
         </motion.div>
 
+       {session?  <div className="mb-8">
+          <SearchBar
+            data={products}
+            onFilter={setFilteredProducts}
+            placeholder="Search products by name, description, or category..."
+            searchKeys={['title', 'description', 'category']}
+          />
+        </div>:null}
+
         <AnimatePresence>
-          {products.length > 0 ? (
+          {filteredProducts.length > 0 ? (
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
             >
-             {session? products.map((item, index) => (
-                <motion.div
-                  key={item._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <ProductCard 
-                    product={item} 
-                    onDelete={handleDeletedItem} 
-                  />
-                </motion.div>
-              )): products.slice(0,3).map((item, index) => (
+              {session? filteredProducts.map((item, index) => (
+                 <motion.div
+                   key={item._id}
+                   initial={{ opacity: 0, y: 20 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   exit={{ opacity: 0, scale: 0.8 }}
+                   transition={{ delay: index * 0.05 }}
+                 >
+                   <ProductCard 
+                     product={item} 
+                     onDelete={handleDeletedItem} 
+                   />
+                 </motion.div>
+               )): filteredProducts.slice(0,3).map((item, index) => (
                 <motion.div
                   key={item._id}
                   initial={{ opacity: 0, y: 20 }}

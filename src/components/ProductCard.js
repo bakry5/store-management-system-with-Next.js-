@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { addToCart } from "@/redux/cartSlice";
 import { MdEdit, MdDelete, MdRemoveRedEye, MdShoppingCart } from "react-icons/md";
 
-const ProductCard = ({ product, onDelete }) => {
+const  ProductCard = ({ product, onDelete }) => {
   const router = useRouter();
   const dispatch = useDispatch();
 
