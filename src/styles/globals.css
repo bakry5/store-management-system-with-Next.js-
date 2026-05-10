@@ -1,22 +1,72 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-paper: #eceeea;
+  --color-surface: #ffffff;
+  --color-ink: #17212b;
+  --color-ink-soft: #55616d;
+  --color-line: #d3d8d0;
+  --color-brand: #f2c230;
+  --color-brand-deep: #dba900;
+  --color-danger: #b3261e;
+  --color-ok: #1f7a4d;
+  --font-sans: var(--font-body), system-ui, sans-serif;
+  --font-display: var(--font-head), var(--font-body), system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+body {
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+@layer components {
+  .page {
+    @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
+  }
+  .h-page {
+    @apply font-display text-3xl font-bold tracking-tight sm:text-4xl;
+  }
+  .panel {
+    @apply rounded-lg border border-line bg-surface;
+  }
+  .btn {
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-sm {
+    @apply px-3 py-1.5 text-[13px];
+  }
+  .btn-primary {
+    @apply bg-brand text-ink hover:bg-brand-deep;
+  }
+  .btn-outline {
+    @apply border border-ink text-ink hover:bg-ink hover:text-paper;
+  }
+  .btn-text {
+    @apply cursor-pointer text-sm font-medium text-ink-soft underline-offset-4 hover:text-ink hover:underline;
+  }
+  .btn-text-danger {
+    @apply cursor-pointer text-sm font-medium text-danger underline-offset-4 hover:underline;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-ink;
+  }
+  .field {
+    @apply w-full rounded-md border border-line bg-surface px-3.5 py-2.5 text-ink placeholder:text-ink-soft/60 focus:border-ink focus:outline-none focus:ring-2 focus:ring-brand;
   }
 }
 
-
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

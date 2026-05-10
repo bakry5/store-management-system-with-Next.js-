@@ -1,128 +1,94 @@
-import { Geist } from "next/font/google";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { FiZap, FiShield, FiStar, FiArrowRight, FiTruck, FiCreditCard, FiAward } from "react-icons/fi";
+import Link from 'next/link';
+import Image from 'next/image';
+import { useSession, signIn } from 'next-auth/react';
+import Product from '@/models/Product';
+import dbConnect from '@/lib/mongodb';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const facts = [
+  { title: 'Shipping', text: 'Free on orders over $50. Below that, a flat $5.99.' },
+  { title: 'Accounts', text: 'Sign in to read full descriptions and to add, edit or remove products.' },
+  { title: 'Questions', text: 'Use the contact page and we will reply by email.' },
+];
 
-export default function Home() {
-  const fadeUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
-  };
-
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.2 }
-    }
-  };
+export default function Home({ latest }) {
+  const { data: session } = useSession();
 
   return (
-    <div className={`${geistSans.className} flex flex-col min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white`}>
-      <main className="grow">
-        <motion.section 
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-          className="py-32 px-6 text-center relative overflow-hidden"
-        >
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3')] bg-cover bg-center opacity-5"></div>
-          <div className="max-w-4xl mx-auto relative z-10">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.5, type: "spring" }}
-              className="inline-block px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-sm mb-6"
-            >
-              ✨ Welcome to the future
-            </motion.div>
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
-              Elevate Your <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Digital Experience</span>
-            </h1>
-            <p className="text-xl text-white/60 mb-10 max-w-2xl mx-auto leading-relaxed">
-              Explore our premium collection of products designed specifically for your needs. Quality and speed guaranteed.
-            </p>   
-            <div className="flex flex-col sm:flex-row justify-center gap-5">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link href="/products" className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-10 py-4 rounded-xl font-bold hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-300">
-                  Shop Now <FiArrowRight />
-                </Link>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <button className="bg-white/10 backdrop-blur-sm text-white border border-white/20 px-10 py-4 rounded-xl font-bold hover:bg-white/20 transition-all duration-300">
-                  Learn More
-                </button>
-              </motion.div>
-            </div>
+    <>
+      <section className="page grid items-start gap-14 py-14 sm:py-20 lg:grid-cols-[1.15fr_1fr]">
+        <div>
+          <h1 className="max-w-[14ch] font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
+            Browse the shelves. Manage the stock.
+          </h1>
+          <p className="mt-6 max-w-[52ch] text-lg leading-relaxed text-ink-soft">
+            Every product, price and category in one catalogue. Look around as a guest, or sign in to keep it up to date.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/products" className="btn btn-primary px-6 py-3">
+              Browse products
+            </Link>
+            {session ? (
+              <Link href="/products/add" className="btn btn-outline px-6 py-3">
+                Add a product
+              </Link>
+            ) : (
+              <button onClick={() => signIn()} className="btn btn-outline px-6 py-3">
+                Log in
+              </button>
+            )}
           </div>
-        </motion.section>
+        </div>
 
-        <motion.section 
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="py-24 max-w-7xl mx-auto px-6"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { icon: FiTruck, title: "Fast Delivery", desc: "We ensure that your orders reach your doorstep in record time, anywhere in the world.", color: "from-purple-500 to-pink-500" },
-              { icon: FiCreditCard, title: "Secure Payment", desc: "Multiple secure payment gateways to keep your transactions safe and encrypted.", color: "from-blue-500 to-cyan-500" },
-              { icon: FiAward, title: "Premium Quality", desc: "Hand-picked products that meet the highest international standards of excellence.", color: "from-orange-500 to-red-500" }
-            ].map((item, index) => (
-              <motion.div
-                key={index}
-                variants={fadeUp}
-                whileHover={{ y: -10 }}
-                className="group relative bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300"
-              >
-                <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity duration-300`}></div>
-                <div className={`w-14 h-14 bg-gradient-to-br ${item.color} rounded-xl flex items-center justify-center mb-6 shadow-lg`}>
-                  <item.icon className="text-white text-2xl" size={28} />
-                </div>
-                <h3 className="text-2xl font-bold mb-3">{item.title}</h3>
-                <p className="text-white/60 leading-relaxed">{item.desc}</p>
-              </motion.div>
-            ))}
+        {latest.length > 0 && (
+          <div>
+            <h2 className="font-display text-sm font-semibold">Latest additions</h2>
+            <ul className="mt-3 border-t border-ink">
+              {latest.map((p) => (
+                <li key={p._id} className="border-b border-line">
+                  <Link href={`/products/${p._id}`} className="group flex items-center gap-4 py-3">
+                    <span className="relative h-14 w-14 shrink-0 border border-line bg-surface">
+                      <Image
+                        src={p.thumbnail || 'https://cdn.dummyjson.com/public/qr-code.png'}
+                        alt=""
+                        fill
+                        sizes="56px"
+                        className="object-contain p-1"
+                      />
+                    </span>
+                    <span className="min-w-0 grow">
+                      <span className="block truncate font-medium group-hover:underline underline-offset-4">{p.title}</span>
+                      <span className="block text-sm capitalize text-ink-soft">{p.category || 'Uncategorised'}</span>
+                    </span>
+                    <span className="font-display font-bold tabular-nums">${p.price}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
-        </motion.section>
+        )}
+      </section>
 
-        <motion.section 
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="mb-24 px-6"
-        >
-          <div className="max-w-6xl mx-auto bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 rounded-[2rem] py-16 px-8 text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?ixlib=rb-4.0.3')] bg-cover bg-center opacity-10"></div>
-            <div className="relative z-10">
-              <motion.div
-                initial={{ scale: 0 }}
-                whileInView={{ scale: 1 }}
-                transition={{ type: "spring", delay: 0.2 }}
-                className="inline-block px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm text-sm mb-6"
-              >
-                🎉 Limited Time Offer
-              </motion.div>
-              <h2 className="text-4xl font-bold mb-4">Ready to get started?</h2>
-              <p className="text-purple-100 text-lg mb-10">Join thousands of happy customers and get 10% off your first order.</p>
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-white text-purple-600 px-12 py-4 rounded-full font-black uppercase tracking-wider hover:shadow-2xl transition-all duration-300"
-              >
-                Create Account
-              </motion.button>
+      <section className="page">
+        <dl className="grid divide-line border-t border-line sm:grid-cols-3 sm:divide-x">
+          {facts.map((f) => (
+            <div key={f.title} className="py-6 sm:px-6 sm:first:pl-0 sm:last:pr-0">
+              <dt className="font-display font-semibold">{f.title}</dt>
+              <dd className="mt-1.5 text-sm leading-relaxed text-ink-soft">{f.text}</dd>
             </div>
-          </div>
-        </motion.section>
-      </main>
-    </div>
+          ))}
+        </dl>
+      </section>
+    </>
   );
+}
+
+export async function getStaticProps() {
+  try {
+    await dbConnect();
+    const docs = await Product.find({}).sort({ createdAt: -1 }).limit(4).lean();
+    return { props: { latest: JSON.parse(JSON.stringify(docs)) }, revalidate: 10 };
+  } catch (error) {
+    console.error('Home data error:', error);
+    return { props: { latest: [] }, revalidate: 10 };
+  }
 }

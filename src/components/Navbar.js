@@ -1,222 +1,107 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useSelector } from 'react-redux';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FiShoppingBag, 
-  FiUser,   
-  FiHeart,
-  FiMenu, 
-  FiX,
-} from 'react-icons/fi';
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { signIn, signOut, useSession } from 'next-auth/react';
+import { FiMenu, FiX } from 'react-icons/fi';
+
+const navLinks = [
+  { name: 'Home', path: '/' },
+  { name: 'Products', path: '/products' },
+  { name: 'Contact', path: '/contact' },
+];
 
 export default function Navbar() {
   const { data: session } = useSession();
   const router = useRouter();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const cartItems = useSelector((state) => state.cart.items);
-  const cartCount = cartItems.length;
+  const [open, setOpen] = useState(false);
+  const cartCount = useSelector((state) => state.cart.items.length);
 
-  const navLinks = [
-    { name: 'Home', path: '/', icon: FiHeart },
-    { name: 'Products', path: '/products', icon: FiShoppingBag },
-    { name: 'Contact', path: '/contact', icon: FiUser },
-  ];
-
-  const navVariants = {
-    hidden: { y: -100 },
-    visible: { 
-      y: 0, 
-      transition: { type: 'spring', stiffness: 100, damping: 20 } 
-    }
-  };
-
-  const mobileMenuVariants = {
-    hidden: { x: '100%', opacity: 0 },
-    visible: { 
-      x: 0, 
-      opacity: 1,
-      transition: { type: 'spring', stiffness: 300, damping: 30 }
-    },
-    exit: { x: '100%', opacity: 0, transition: { duration: 0.3 } }
-  };
+  const linkClass = (path) =>
+    `border-b-2 py-1 text-sm font-medium transition-colors ${
+      router.pathname === path
+        ? 'border-brand text-ink'
+        : 'border-transparent text-ink-soft hover:text-ink'
+    }`;
 
   return (
-    <>
-      <motion.nav 
-        initial="hidden"
-        animate="visible"
-        variants={navVariants}
-        className="bg-gradient-to-r from-slate-900/95 via-purple-900/95 to-slate-900/95 backdrop-blur-md sticky top-0 z-50 border-b border-white/10 shadow-2xl"
-      >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            
-            <Link href="/" className="group flex items-center gap-2">
-              <motion.div 
-                whileHover={{ rotate: 360 }}
-                transition={{ duration: 0.5 }}
-                className="w-11 h-11 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/25 overflow-hidden"
-              >
-                {session?.user?.image ? (
-                  <img src={session.user.image} alt="User" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-white font-black text-2xl">B</span>
-                )}
-              </motion.div>
-              <span className="text-2xl font-black tracking-tighter bg-gradient-to-r from-white to-purple-300 bg-clip-text text-transparent">
-                Bakry<span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">.</span>
-              </span>
+    <header className="sticky top-0 z-40 border-b border-line bg-surface">
+      <div className="page flex h-16 items-center justify-between">
+        <Link href="/" className="font-display text-xl font-extrabold tracking-tight">
+          Bakry<span className="ml-1 inline-block h-2.5 w-2.5 bg-brand align-baseline" aria-hidden="true" />
+        </Link>
+
+        <nav className="hidden items-center gap-8 md:flex" aria-label="Main">
+          {navLinks.map((l) => (
+            <Link key={l.path} href={l.path} className={linkClass(l.path)}>
+              {l.name}
             </Link>
+          ))}
+        </nav>
 
-            <div className="hidden md:flex items-center gap-10">
-              {navLinks.map((link) => (
-                <Link key={link.path} href={link.path}>
-                  <motion.span 
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`text-sm font-semibold tracking-wide transition-all cursor-pointer flex items-center gap-2 px-3 py-2 rounded-lg
-                      ${router.pathname === link.path 
-                        ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border border-purple-500/30' 
-                        : 'text-white/70 hover:text-white hover:bg-white/5'}`}
-                  >
-                    <link.icon size={16} />
-                    {link.name}
-                  </motion.span>
-                </Link>
-              ))}
-            </div>
+        <div className="flex items-center gap-4">
+          <Link href="/cart" className="text-sm font-medium text-ink hover:underline underline-offset-4">
+            Cart
+            {cartCount > 0 && (
+              <span className="ml-1.5 rounded bg-brand px-1.5 py-0.5 text-xs font-semibold tabular-nums">
+                {cartCount}
+              </span>
+            )}
+          </Link>
 
-            <div className="flex items-center gap-3">
-              <Link href="/cart">
-                <motion.div 
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="relative p-2.5 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl cursor-pointer border border-purple-500/30"
-                >
-                  <FiShoppingBag className="w-5 h-5 text-purple-300" />
-                  <AnimatePresence>
-                    {cartCount > 0 && (
-                      <motion.span 
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        exit={{ scale: 0 }}
-                        className="absolute -top-2 -right-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full shadow-lg"
-                      >
-                        {cartCount}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              </Link>
-
-              <div className="hidden sm:flex items-center gap-2">
-                {!session ? (
-                  <motion.button 
-                    onClick={() => signIn()}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-5 py-2.5 text-sm font-semibold text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-all"
-                  >
-                    Login
-                  </motion.button>
-                ) : (
-                  <div className="flex items-center gap-3">
-                    <span className="text-white/60 text-xs hidden lg:block">Hi, {session.user.name?.split(' ')[0]}</span>
-                    <motion.button 
-                      onClick={() => signOut()}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="px-5 py-2.5 text-sm font-semibold text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-all border border-white/5"
-                    >
-                      LogOut
-                    </motion.button>
-                  </div>
-                )}
-              </div>
-
-              <motion.button 
-                whileTap={{ scale: 0.9 }}
-                onClick={() => setIsMobileMenuOpen(true)}
-                className="md:hidden p-2 rounded-lg bg-white/5 border border-white/10"
-              >
-                <FiMenu size={24} className="text-white" />
-              </motion.button>
-            </div>
+          <div className="hidden items-center gap-4 sm:flex">
+            {session ? (
+              <>
+                <span className="text-sm text-ink-soft">{session.user.name?.split(' ')[0]}</span>
+                <button onClick={() => signOut()} className="btn btn-outline btn-sm">
+                  Log out
+                </button>
+              </>
+            ) : (
+              <button onClick={() => signIn()} className="btn btn-outline btn-sm">
+                Log in
+              </button>
+            )}
           </div>
-        </div>
-      </motion.nav>
 
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            variants={mobileMenuVariants}
-            className="fixed inset-0 z-50 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 md:hidden"
+          <button
+            className="p-1 md:hidden"
+            onClick={() => setOpen(!open)}
+            aria-expanded={open}
+            aria-label={open ? 'Close menu' : 'Open menu'}
           >
-            <div className="flex flex-col h-full">
-              <div className="flex justify-between items-center p-6 border-b border-white/10">
-                <span className="text-2xl font-black bg-gradient-to-r from-white to-purple-300 bg-clip-text text-transparent">Bakry.</span>
-                <motion.button 
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 rounded-lg bg-white/5 border border-white/10"
-                >
-                  <FiX size={24} className="text-white" />
-                </motion.button>
-              </div>
-              
-              <div className="flex-1 py-8">
-                {navLinks.map((link, index) => (
-                  <motion.div
-                    key={link.path}
-                    initial={{ x: 50, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
-                    <Link href={link.path}>
-                      <div 
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className={`flex items-center gap-4 px-6 py-4 mx-4 rounded-xl transition-all
-                          ${router.pathname === link.path 
-                            ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border border-purple-500/30' 
-                            : 'text-white/70 hover:text-white hover:bg-white/5'}`}
-                      >
-                        <link.icon size={22} />
-                        <span className="font-semibold">{link.name}</span>
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
+            {open ? <FiX size={22} /> : <FiMenu size={22} />}
+          </button>
+        </div>
+      </div>
 
-              <div className="p-6 border-t border-white/10 space-y-3">
-                {!session ? (
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => { signIn(); setIsMobileMenuOpen(false); }}
-                    className="w-full py-4 text-center font-bold text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl"
-                  >
-                    Login
-                  </motion.button>
-                ) : (
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => { signOut(); setIsMobileMenuOpen(false); }}
-                    className="w-full py-4 text-center font-bold text-white/80 bg-white/5 border border-white/10 rounded-xl"
-                  >
-                    LogOut
-                  </motion.button>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+      {open && (
+        <div className="border-t border-line bg-surface md:hidden">
+          <nav className="page flex flex-col py-2" aria-label="Mobile">
+            {navLinks.map((l) => (
+              <Link
+                key={l.path}
+                href={l.path}
+                onClick={() => setOpen(false)}
+                className={`border-b border-line py-3 text-base ${
+                  router.pathname === l.path ? 'font-semibold text-ink' : 'text-ink-soft'
+                }`}
+              >
+                {l.name}
+              </Link>
+            ))}
+            <button
+              onClick={() => {
+                setOpen(false);
+                session ? signOut() : signIn();
+              }}
+              className="py-3 text-left text-base font-medium"
+            >
+              {session ? 'Log out' : 'Log in'}
+            </button>
+          </nav>
+        </div>
+      )}
+    </header>
   );
 }

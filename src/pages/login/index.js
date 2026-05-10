@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { FiMail, FiLock, FiEye, FiEyeOff, FiLogIn } from 'react-icons/fi';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -14,103 +12,61 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center py-12 px-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full"
-      >
-        <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
-          <div className="text-center mb-8">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", duration: 0.5 }}
-              className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl mb-4 mx-auto"
-            >
-              <FiLogIn size={28} className="text-purple-400" />
-            </motion.div>
-            <h2 className="text-3xl font-black bg-gradient-to-r from-white to-purple-300 bg-clip-text text-transparent">
-              Welcome Back
-            </h2>
-            <p className="text-white/40 mt-2">Login to manage your account</p>
-          </div>
+    <div className="page max-w-md py-14 sm:py-20">
+      <h1 className="h-page">Log in</h1>
+      <p className="mt-2 text-ink-soft">Use your account to manage products.</p>
 
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div>
-              <label className="flex items-center gap-2 text-sm font-semibold text-purple-400 mb-2">
-                <FiMail size={14} />
-                Email Address
-              </label>
-              <input 
-                type="email" 
-                required
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-purple-500 transition"
-                placeholder="name@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <div className="flex justify-between mb-2">
-                <label className="flex items-center gap-2 text-sm font-semibold text-purple-400">
-                  <FiLock size={14} />
-                  Password
-                </label>
-                <Link href="#" className="text-xs text-purple-400 hover:text-purple-300 transition">
-                  Forgot password?
-                </Link>
-              </div>
-              <div className="relative">
-                <input 
-                  type={showPassword ? "text" : "password"} 
-                  required
-                  className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-purple-500 transition pr-12"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-purple-400 transition"
-                >
-                  {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center">
-              <input 
-                type="checkbox" 
-                id="remember" 
-                className="h-4 w-4 rounded border-white/20 bg-white/5 text-purple-500 focus:ring-purple-500 focus:ring-offset-0 cursor-pointer" 
-              />
-              <label htmlFor="remember" className="ml-2 block text-sm text-white/50 cursor-pointer">
-                Remember me
-              </label>
-            </div>
-
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit" 
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-3 rounded-xl hover:shadow-xl hover:shadow-purple-500/25 transition-all flex items-center justify-center gap-2"
-            >
-              <FiLogIn size={18} />
-              Sign In
-            </motion.button>
-
-            <p className="text-center text-sm text-white/40 mt-6">
-              Don't have an account?{' '}
-              <Link href="/register" className="text-purple-400 font-bold hover:text-purple-300 transition">
-                Register now
-              </Link>
-            </p>
-          </form>
+      <form onSubmit={handleLogin} className="panel mt-8 space-y-5 p-6 sm:p-8">
+        <div>
+          <label htmlFor="email" className="label">Email</label>
+          <input
+            id="email"
+            type="email"
+            required
+            autoComplete="email"
+            className="field"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
-      </motion.div>
+
+        <div>
+          <div className="mb-1.5 flex items-baseline justify-between">
+            <label htmlFor="password" className="text-sm font-medium">Password</label>
+            <Link href="#" className="btn-text !text-[13px]">Forgot password?</Link>
+          </div>
+          <div className="relative">
+            <input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              required
+              autoComplete="current-password"
+              className="field pr-16"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[13px] font-medium text-ink-soft hover:text-ink"
+            >
+              {showPassword ? 'Hide' : 'Show'}
+            </button>
+          </div>
+        </div>
+
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-soft">
+          <input type="checkbox" className="h-4 w-4 accent-ink" />
+          Keep me logged in
+        </label>
+
+        <button type="submit" className="btn btn-primary w-full py-3">Log in</button>
+      </form>
+
+      <p className="mt-6 text-sm text-ink-soft">
+        New here?{' '}
+        <Link href="/register" className="font-medium text-ink underline underline-offset-4">Create an account</Link>
+      </p>
     </div>
   );
 }
